@@ -3,7 +3,7 @@ version: '3.8'
 services:
   backend:
     build: 
-      context: ./backend
+      context: ./mern/backend
       dockerfile: Dockerfile
     ports:
       - "3001:3001"
@@ -15,14 +15,14 @@ services:
 
   frontend:
     build: 
-      context: ./frontend
+      context: ./mern/frontend
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
     environment:
       - NODE_ENV=production
       - PORT=3000
-      - BACKEND_URL=http://backend:3001
+      - BACKEND_URL=http://13.219.75.233:3001
 
     networks:
       - app-network
