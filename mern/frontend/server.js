@@ -1,11 +1,7 @@
-import express from 'express';
-import os from 'os';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import fetch from 'node-fetch';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const express = require('express');
+const os = require('os');
+const path = require('path');
+const fetch = require('node-fetch');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
