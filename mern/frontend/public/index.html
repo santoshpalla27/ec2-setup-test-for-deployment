@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hostname Display</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .hostname-card {
+            background: #e8f4fd;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            border-left: 4px solid #007acc;
+        }
+        .hostname-card h3 {
+            margin-top: 0;
+            color: #005c8a;
+        }
+        .hostname {
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+        .timestamp {
+            font-size: 12px;
+            color: #666;
+            margin-top: 10px;
+        }
+        .loading {
+            color: #666;
+            font-style: italic;
+        }
+        .error {
+            color: #d9534f;
+            background: #f2dede;
+            padding: 10px;
+            border-radius: 4px;
+            border-left: 4px solid #d9534f;
+        }
+        button {
+            background: #007acc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #005c8a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🖥️ Hostname Display</h1>
+        <p>This application shows the hostnames of both frontend and backend servers.</p>
+        
+        <div class="hostname-card">
+            <h3>🌐 Frontend Hostname</h3>
+            <div id="frontend-hostname" class="loading">Loading...</div>
+            <div id="frontend-timestamp" class="timestamp"></div>
+        </div>
+        
+        <div class="hostname-card">
+            <h3>⚙️ Backend Hostname</h3>
+            <div id="backend-hostname" class="loading">Loading...</div>
+            <div id="backend-timestamp" class="timestamp"></div>
+        </div>
+        
+        <button onclick="refreshHostnames()">🔄 Refresh</button>
+        <button onclick="autoRefresh()">⏰ Auto Refresh (10s)</button>
+        <button onclick="stopAutoRefresh()">⏹️ Stop Auto Refresh</button>
+        
+        <div id="status" style="margin-top: 20px;"></div>
+    </div>
+
+    <script>
+        // Backend API URL - change this to your backend server IP/hostname
+        const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:3001';
+        let autoRefreshInterval = null;
+
+        async function fetchFrontendHostname() {
+            try {
+                const response = await fetch('/api/frontend-hostname');
+                const data = await response.json();
+                document.getElementById('frontend-hostname').innerHTML = `<span class="hostname">${data.hostname}</span>`;
+                document.getElementById('frontend-timestamp').textContent = `Last updated: ${new Date(data.timestamp).toLocaleString()}`;
+            } catch (error) {
+                document.getElementById('frontend-hostname').innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+
+        async function fetchBackendHostname() {
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/hostname`);
+                const data = await response.json();
+                document.getElementById('backend-hostname').innerHTML = `<span class="hostname">${data.hostname}</span>`;
+                document.getElementById('backend-timestamp').textContent = `Last updated: ${new Date(data.timestamp).toLocaleString()}`;
+            } catch (error) {
+                document.getElementById('backend-hostname').innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+
+        async function refreshHostnames() {
+            document.getElementById('frontend-hostname').innerHTML = '<span class="loading">Loading...</span>';
+            document.getElementById('backend-hostname').innerHTML = '<span class="loading">Loading...</span>';
+            
+            await Promise.all([
+                fetchFrontendHostname(),
+                fetchBackendHostname()
+            ]);
+        }
+
+        function autoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+            }
+            
+            autoRefreshInterval = setInterval(refreshHostnames, 10000);
+            document.getElementById('status').innerHTML = '<div style="color: green;">✅ Auto refresh enabled (every 10 seconds)</div>';
+        }
+
+        function stopAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+                document.getElementById('status').innerHTML = '<div style="color: orange;">⏸️ Auto refresh stopped</div>';
+            }
+        }
+
+        // Load hostnames when page loads
+        window.addEventListener('load', refreshHostnames);
+    </script>
+</body>
+</html>
