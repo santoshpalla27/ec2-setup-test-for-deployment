@@ -13,6 +13,11 @@ app.get('/hostname', (req, res) => {
   });
 });
 
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', service: SERVICE_NAME });
+});
+
+
 app.listen(PORT, () => {
   console.log(`${SERVICE_NAME} running on port ${PORT}`);
 });

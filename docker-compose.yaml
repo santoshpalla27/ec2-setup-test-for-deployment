@@ -19,4 +19,4 @@ services:
     environment:
       - PORT=3000
       - SERVICE_NAME=frontend
-      - BACKEND_URL=http://13.219.75.233:3001
+      - BACKEND_URL=http://13.219.75.233:3001/hostname
