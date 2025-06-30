@@ -1,32 +1,22 @@
-version: '3.8'
-
+version: '3'
 services:
   backend:
-    build: 
-      context: ./mern/backend
-      dockerfile: Dockerfile
+    build: ./backend
+    container_name: backend
     ports:
       - "3001:3001"
     environment:
-      - NODE_ENV=production
       - PORT=3001
-    networks:
-      - app-network
+      - SERVICE_NAME=backend
 
   frontend:
-    build: 
-      context: ./mern/frontend
-      dockerfile: Dockerfile
+    build: ./frontend
+    container_name: frontend
     ports:
-      - "3000:3000"
+      - "80:3000"
+    depends_on:
+      - backend
     environment:
-      - NODE_ENV=production
       - PORT=3000
-      - BACKEND_URL=http://13.219.75.233:3001
-
-    networks:
-      - app-network
-
-networks:
-  app-network:
-    driver: bridge
+      - SERVICE_NAME=frontend
+      - BACKEND_URL=http://13.219.75.233:3001/hostname

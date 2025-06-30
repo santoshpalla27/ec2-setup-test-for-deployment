@@ -1,28 +1,18 @@
-const express = require('express');
-const os = require('os');
-const cors = require('cors');
+import express from 'express';
+import os from 'os';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const SERVICE_NAME = process.env.SERVICE_NAME || 'backend';
 
-// Enable CORS for all routes
-app.use(cors());
-app.use(express.json());
-
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.json({ status: 'OK', hostname: os.hostname() });
-});
-
-// Get backend hostname
-app.get('/api/hostname', (req, res) => {
-  res.json({ 
+app.get('/hostname', (req, res) => {
+  res.json({
+    service: SERVICE_NAME,
     hostname: os.hostname(),
-    timestamp: new Date().toISOString()
+    port: PORT
   });
 });
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Backend server running on port ${PORT}`);
-  console.log(`Hostname: ${os.hostname()}`);
+app.listen(PORT, () => {
+  console.log(`${SERVICE_NAME} running on port ${PORT}`);
 });

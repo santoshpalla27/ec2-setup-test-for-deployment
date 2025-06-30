@@ -1,18 +1,6 @@
 FROM node:18-alpine
-
 WORKDIR /app
-
-# Copy package files
-COPY package*.json ./
-
-# Install dependencies
-RUN npm install --only=production
-
-# Copy application code
-COPY . .
-
-# Expose port
+COPY server.js .
+RUN npm install express
 EXPOSE 3001
-
-# Start the application
-CMD ["npm", "start"]
+CMD ["node", "server.js"]

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>EC2 Hostname Viewer</title>
+</head>
+<body>
+  <h1>EC2 Hostname Viewer</h1>
+  <p><strong>Frontend Hostname:</strong> <span id="frontend-hostname">Loading...</span></p>
+  <p><strong>Backend Hostname:</strong> <span id="backend-hostname">Loading...</span></p>
+
+  <script>
+    fetch('/frontend-hostname')
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('frontend-hostname').innerText = data.hostname;
+      });
+
+    fetch('/api/backend-hostname')
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('backend-hostname').innerText = data.hostname;
+      });
+  </script>
+</body>
+</html>

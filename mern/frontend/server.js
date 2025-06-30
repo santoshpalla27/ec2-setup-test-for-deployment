@@ -1,45 +1,37 @@
-const express = require('express');
-const path = require('path');
-const os = require('os');
+import express from 'express';
+import os from 'os';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import fetch from 'node-fetch';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:3001/hostname';
+const SERVICE_NAME = process.env.SERVICE_NAME || 'frontend';
 
-// Serve static files from public directory
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname)));
 
-// API endpoint to get frontend hostname
-app.get('/api/frontend-hostname', (req, res) => {
-  res.json({ 
+app.get('/frontend-hostname', (req, res) => {
+  res.json({
+    service: SERVICE_NAME,
     hostname: os.hostname(),
-    timestamp: new Date().toISOString()
+    port: PORT
   });
 });
 
-// Serve the main page with backend URL injection
-app.get('/', (req, res) => {
-  const backendUrl = process.env.BACKEND_URL || 'http://localhost:3001';
-  const indexPath = path.join(__dirname, 'public', 'index.html');
-  
-  // Read the HTML file and inject the backend URL
-  const fs = require('fs');
-  fs.readFile(indexPath, 'utf8', (err, data) => {
-    if (err) {
-      return res.status(500).send('Error loading page');
-    }
-    
-    // Inject the backend URL as a global variable
-    const modifiedHtml = data.replace(
-      '<script>',
-      `<script>
-        window.BACKEND_URL = '${backendUrl}';`
-    );
-    
-    res.send(modifiedHtml);
-  });
+app.get('/api/backend-hostname', async (req, res) => {
+  try {
+    const response = await fetch(BACKEND_URL);
+    const data = await response.json();
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: 'Unable to fetch backend hostname', details: err.message });
+  }
 });
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Frontend server running on port ${PORT}`);
-  console.log(`Hostname: ${os.hostname()}`);
+app.listen(PORT, () => {
+  console.log(`${SERVICE_NAME} running on port ${PORT}`);
 });
