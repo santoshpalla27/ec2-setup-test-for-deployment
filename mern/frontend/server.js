@@ -7,7 +7,7 @@ const fetch = require('node-fetch');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:3001/hostname';
+const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:3001';
 const SERVICE_NAME = process.env.SERVICE_NAME || 'frontend';
 
 app.use(express.static(path.join(__dirname)));
@@ -24,7 +24,7 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', service: SERVICE_NAME });
 });
 
-app.get('/api/hostname', async (req, res) => {
+app.get('/hostname', async (req, res) => {
   try {
     const response = await fetch(BACKEND_URL);
     const data = await response.json();
