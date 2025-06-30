@@ -24,7 +24,7 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', service: SERVICE_NAME });
 });
 
-app.get('/api/backend-hostname', async (req, res) => {
+app.get('/api/hostname', async (req, res) => {
   try {
     const response = await fetch(BACKEND_URL);
     const data = await response.json();
