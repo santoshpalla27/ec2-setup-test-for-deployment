@@ -129,7 +129,7 @@ resource "aws_lb_target_group" "frontend" {
   health_check {
     enabled = true
     interval = 30
-    path = "/health"
+    path = "/"
     port = "80"
     protocol = "HTTP"
     timeout = 5
@@ -141,15 +141,15 @@ resource "aws_lb_target_group" "frontend" {
 
 resource "aws_lb_target_group" "backend" {
   name = "backend-target-group"
-  port = 5050
+  port = 6068
   protocol = "HTTP"
   vpc_id = aws_vpc.main.id
 
   health_check {
     enabled = true
     interval = 30
-    path = "/health"  # Health check on your backend API endpoint
-    port = "5050"
+    path = "/"  # Health check on your backend API endpoint
+    port = "6068"
     protocol = "HTTP"
     timeout = 5
     healthy_threshold = 3
@@ -162,22 +162,42 @@ resource "aws_lb_target_group" "backend" {
   }
 }
 
-data "aws_acm_certificate" "existing" {
-  domain   = "santosh.website"  
+data "aws_acm_certificate" "multi_domain_cert" {
+  domain   = "santosh.website"
   statuses = ["ISSUED"]
   most_recent = true
 }
+
+
+
 
 resource "aws_lb_listener" "https" {
   load_balancer_arn = aws_lb.web_alb.arn
   port              = 443
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-TLS-1-2-2017-01"
-  certificate_arn = data.aws_acm_certificate.existing.arn
+  certificate_arn = data.aws_acm_certificate.multi_domain_cert.arn
   
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.frontend.arn
+  }
+}
+ 
+ # for certificate 
+resource "aws_lb_listener_rule" "frontend_main" {
+  listener_arn = aws_lb_listener.https.arn
+  priority     = 110
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.frontend.arn
+  }
+
+  condition {
+    host_header {
+      values = ["santosh.website"]
+    }
   }
 }
 
@@ -205,9 +225,14 @@ resource "aws_lb_listener_rule" "backend_api" {
     target_group_arn = aws_lb_target_group.backend.arn
   }
 
+  # condition {
+  #   path_pattern {
+  #     values = ["/record", "/record/*" , "/health"]
+  #   }
+  # }
   condition {
-    path_pattern {
-      values = ["/record", "/record/*" , "/health"]
+    host_header {
+      values = ["backend.santosh.website"]
     }
   }
 }
@@ -333,3 +358,6 @@ resource "aws_cloudwatch_metric_alarm" "low_cpu" {
 #               EOF
 
 # }
+
+
+

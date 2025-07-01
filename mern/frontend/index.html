@@ -1,25 +1,13 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>EC2 Hostname Viewer</title>
-</head>
-<body>
-  <h1>EC2 Hostname Viewer</h1>
-  <p><strong>Frontend Hostname:</strong> <span id="frontend-hostname">Loading...</span></p>
-  <p><strong>Backend Hostname:</strong> <span id="backend-hostname">Loading...</span></p>
-
-  <script>
-    fetch('/frontend-hostname')
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById('frontend-hostname').innerText = data.hostname;
-      });
-
-    fetch('/api/backend-hostname')
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById('backend-hostname').innerText = data.hostname;
-      });
-  </script>
-</body>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MERN (MongoDB + Express + React + Node)</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>

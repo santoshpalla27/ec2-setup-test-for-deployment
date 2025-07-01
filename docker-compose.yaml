@@ -1,22 +1,45 @@
-version: '3'
 services:
   backend:
     build: ./mern/backend
-    container_name: backend
     ports:
-      - "3001:3001"
+      - "5050:5050"
+    networks:
+      - mern_network
     environment:
-      - PORT=3001
-      - SERVICE_NAME=backend
+      MONGO_URI: mongodb://mongodb:27017
+    depends_on:
+      - mongodb
+
 
   frontend:
-    build: ./mern/frontend
-    container_name: frontend
+    build:
+      context: ./mern/frontend
+      args:
+        VITE_API_URL: ""
     ports:
-      - "80:3000"
-    depends_on:
-      - backend
-    environment:
-      - PORT=3000
-      - SERVICE_NAME=frontend
-      - BACKEND_URL=http://13.219.75.233:3001/hostname
+      - "80:80"
+    networks:
+        - mern_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    networks:
+      - mern_network
+    volumes:
+      - mongo-data:/data/db
+
+networks:
+  mern_network:
+    driver: bridge
+
+volumes:
+  mongo-data:
+    driver: local  # Persist MongoDB data locally
