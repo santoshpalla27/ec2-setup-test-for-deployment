@@ -3,7 +3,10 @@
   hosts: localhost
   become: true
   connection: local
-
+  vars:
+    vars_files:
+      - group_vars/docker.yml
+      
   tasks:
     - name: Update apt cache
       apt:
@@ -19,6 +22,11 @@
         name: docker
         state: started
         enabled: yes
+
+    - name: Login to DockerHub
+      ansible.builtin.shell: |
+        echo "{{ docker_password }}" | docker login -u "{{ docker_username }}" --password-stdin
+      no_log: true
 
     - name: Create Docker network
       docker_network:
@@ -46,3 +54,4 @@
           - "80:80"
         networks:
           - name: mern_network
+
